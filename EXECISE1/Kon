@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kutus Boda | Unified System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon: #00ffa3; --gold: #ffdb58; --bg-dark: #020617; --bg-white: #ffffff; --primary: #00cc84; }
+        body, html { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; width: 100vw; overflow-x: hidden; }
+
+        /* --- SECTION 1: DARK LOGIN PAGE --- */
+        #auth-view { background: var(--bg-dark); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius: 40px; padding: 35px; width: 100%; max-width: 400px; }
+        .logo-text { font-family: 'Orbitron', sans-serif; font-size: 26px; color: var(--neon); text-align: center; margin-bottom: 25px; }
+        
+        .tabs { display: flex; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 5px; margin-bottom: 25px; }
+        .tab-btn { flex: 1; padding: 14px; border: none; border-radius: 15px; background: transparent; color: #64748b; font-weight: 800; cursor: pointer; }
+        .tab-btn.active { background: var(--neon); color: #020617; }
+        
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+        input, select { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 15px; color: white; box-sizing: border-box; }
+        
+        .btn-enter { width: 100%; padding: 20px; background: var(--neon); color: #020617; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+
+        /* --- SECTION 2: WHITE EXPLORE DASHBOARD --- */
+        #main-dashboard { display: none; background: var(--bg-white); color: #111; flex-direction: column; min-height: 100vh; }
+        .dash-nav { padding: 20px 40px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; align-items: center; }
+        .hero-split { display: flex; flex: 1; padding: 40px; gap: 40px; }
+        .content-left { flex: 1; max-width: 500px; }
+        
+        /* Distance Cards */
+        .grid-9 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .loc-box { border: 2px solid #f0f0f0; padding: 15px; border-radius: 15px; cursor: pointer; transition: 0.3s; font-weight: 700; font-size: 14px; }
+        .loc-box:hover { border-color: var(--primary); background: #f0fff9; }
+
+        .fare-display { background: #e8f5e9; color: var(--primary); padding: 20px; border-radius: 20px; margin-top: 20px; display: none; text-align: center; }
+        .visual-right { flex: 1.2; background: #f6f6f6; border-radius: 40px; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-view">
+        <div class="glass-card">
+            <div class="logo-text">KUTUS BODA</div>
+            <div class="tabs">
+                <button id="t-student" class="tab-btn active" onclick="setRole('student')">STUDENT</button>
+                <button id="t-rider" class="tab-btn" onclick="setRole('rider')">RIDER</button>
+            </div>
+            
+            <div id="login-fields">
+                <div class="input-group"><label>Full Name</label><input type="text" id="name" placeholder="Name"></div>
+            </div>
+            
+            <div class="input-group"><label>M-Pesa Number</label><input type="text" id="phone" value="2547"></div>
+            <button class="btn-enter" onclick="login()">ENTER SYSTEM</button>
+        </div>
+    </div>
+
+    <div id="main-dashboard">
+        <div class="dash-nav">
+            <div style="font-weight: 800; font-size: 22px;">Uber | Kutus</div>
+            <div id="user-tag" style="font-weight: 700; color: var(--primary);"></div>
+        </div>
+
+        <div class="hero-split">
+            <div class="content-left">
+                <h1 style="font-size: 42px; margin: 0;">Explore Kutus</h1>
+                <p style="color: #666;">9 Destinations. Instant Pricing.</p>
+
+                <div class="grid-9">
+                    <div class="loc-box" onclick="calc(75, 'Spenza')">Spenza (< 1km)</div>
+                    <div class="loc-box" onclick="calc(90, 'Diaspora')">Diaspora (< 2km)</div>
+                    <div class="loc-box" onclick="calc(50, 'Icon')">Icon</div>
+                    <div class="loc-box" onclick="calc(100, 'Raha Premium')">Raha Premium</div>
+                    <div class="loc-box" onclick="calc(100, 'Password Hostel')">Password Hostel</div>
+                    <div class="loc-box" onclick="calc(100, 'Executi')">Executi</div>
+                    <div class="loc-box" onclick="calc(150, 'Mjini')">Mjini (> 4km)</div>
+                    <div class="loc-box" onclick="calc(90, 'Soko')">Soko</div>
+                    <div class="loc-box" onclick="calc(75, 'School')">School</div>
+                </div>
+
+                <div id="fare-result" class="fare-display">
+                    <div style="font-size: 12px; font-weight: 800; color: #666;">ESTIMATED FARE</div>
+                    <div id="price-tag" style="font-size: 32px; font-weight: 800;"></div>
+                    <select id="goods" onchange="addGoods()" style="background: white; color: black; margin-top: 10px; border: 1px solid #ddd;">
+                        <option value="0">No Goods</option>
+                        <option value="70">Less than 50kg (+70)</option>
+                        <option value="150">Excess 50kg (+150)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="visual-right">
+                <img src="https://illustrations.popsy.co/white/motorcycle-delivery.svg" style="width: 70%;" alt="Biker">
+            </div>
+        </div>
+    </div>
+
+<script>
+    let currentBase = 0;
+    function setRole(r) {
+        const fields = document.getElementById('login-fields');
+        if(r === 'rider') {
+            fields.innerHTML = `<div class="input-group"><label>Rider Name (3 Names)</label><input type="text" id="name" placeholder="First Middle Last"></div>`;
+        } else {
+            fields.innerHTML = `<div class="input-group"><label>Student Name</label><input type="text" id="name" placeholder="Name"></div>`;
+        }
+        document.getElementById('t-student').className = r === 'student' ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('t-rider').className = r === 'rider' ? 'tab-btn active' : 'tab-btn';
+    }
+
+    function login() {
+        const n = document.getElementById('name').value;
+        document.getElementById('auth-view').style.display = 'none';
+        document.getElementById('main-dashboard').style.display = 'flex';
+        document.getElementById('user-tag').innerText = n.split(' ')[0].toUpperCase();
+    }
+
+    function calc(price, name) {
+        currentBase = price;
+        document.getElementById('price-tag').innerText = price + " bob";
+        document.getElementById('fare-result').style.display = 'block';
+    }
+
+    function addGoods() {
+        const extra = parseInt(document.getElementById('goods').value);
+        document.getElementById('price-tag').innerText = (currentBase + extra) + " bob";
+    }
+</script>
+</body>
+</html>
