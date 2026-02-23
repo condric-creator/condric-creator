@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kutus Boda Elite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #00cc84; --rider-gold: #f39c12; --text: #111111; --bg: #ffffff; --soft: #f6f6f6; }
+        body, html { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; width: 100vw; overflow-x: hidden; }
+        
+        /* Layout */
+        .app-shell { display: flex; flex-direction: column; min-height: 100vh; width: 100%; }
+        .nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .logo { font-weight: 800; font-size: 24px; color: black; letter-spacing: -1px; }
+
+        /* Full Screen Hero Section */
+        .hero { display: flex; flex: 1; padding: 40px; gap: 40px; align-items: center; }
+        .content-left { flex: 1; max-width: 500px; }
+        .visual-right { flex: 1.2; background: var(--soft); height: 80vh; border-radius: 40px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+
+        /* Biker Cartoon/Illustration Area */
+        .biker-illustration { width: 80%; height: auto; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1)); }
+        
+        /* Components */
+        .auth-card { width: 100%; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; background: var(--soft); padding: 5px; border-radius: 12px; width: fit-content; }
+        .tab-btn { padding: 10px 25px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; background: transparent; color: #666; transition: 0.3s; }
+        .tab-btn.active { background: white; color: black; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        .input-box { margin-bottom: 20px; }
+        label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #888; }
+        input, select { width: 100%; padding: 16px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; background: var(--soft); transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; background: white; }
+
+        /* Rider Mode Specifics */
+        .rider-mode input { color: var(--rider-gold) !important; border-color: #ffeaa7; }
+
+        .btn-black { background: black; color: white; width: 100%; padding: 20px; border-radius: 12px; font-weight: 700; font-size: 16px; border: none; cursor: pointer; transition: 0.3s; }
+        .btn-black:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        /* Dashboard View */
+        #main-dashboard { display: none; width: 100%; height: 100%; }
+        .fare-badge { background: #e8f5e9; color: var(--primary); padding: 15px; border-radius: 12px; font-weight: 800; font-size: 20px; margin-top: 15px; display: none; text-align: center; border: 1px solid var(--primary); }
+
+        #auth-view { display: flex; width: 100%; }
+    </style>
+</head>
+<body>
+
+<div class="app-shell">
+    <div class="nav">
+        <div class="logo">Uber | Kutus</div>
+        <div id="user-display" style="font-weight: 700;"></div>
+    </div>
+
+    <div id="auth-view" class="hero">
+        <div class="content-left">
+            <h1 style="font-size: 48px; margin-bottom: 10px;">Move around Kutus</h1>
+            <p style="color: #666; margin-bottom: 40px;">Request a ride, check prices, and stay safe.</p>
+            
+            <div class="tabs">
+                <button id="t-student" class="tab-btn active" onclick="setRole('student')">Student</button>
+                <button id="t-rider" class="tab-btn" onclick="setRole('rider')">Rider</button>
+            </div>
+
+            <div id="dynamic-fields"></div>
+            <div class="input-box"><label>M-Pesa Number</label><input type="text" id="phone" value="2547"></div>
+            
+            <button class="btn-black" onclick="handleAuth()">CREATE ACCOUNT / LOGIN</button>
+        </div>
+        
+        <div class="visual-right">
+            <img src="https://illustrations.popsy.co/white/motorcycle-delivery.svg" class="biker-illustration" alt="Biker">
+        </div>
+    </div>
+
+    <div id="main-dashboard" class="hero">
+        <div class="content-left">
+            <h1 id="greet-name" style="font-size: 42px;">Hello!</h1>
+            <p id="sub-msg" style="color: #666; margin-bottom: 30px; font-weight: 600;"></p>
+
+            <div id="student-zone" style="display:none;">
+                <div class="input-box">
+                    <label>Where to?</label>
+                    <select id="dest" onchange="getFare()">
+                        <option value="">Choose destination</option>
+                        <option value="Diaspora">Diaspora</option>
+                        <option value="Spenza">Spenza</option>
+                        <option value="Icon">Icon</option>
+                    </select>
+                </div>
+                <div id="fare-output" class="fare-badge"></div>
+            </div>
+
+            <div id="rider-zone" style="display:none;">
+                <div style="background: var(--soft); padding: 20px; border-radius: 12px; border-left: 5px solid var(--rider-gold);">
+                    <label>Vehicle Identity</label>
+                    <div id="plate-show" style="font-size: 24px; font-weight: 800;"></div>
+                </div>
+            </div>
+
+            <button class="btn-black" style="background: #ff3b30; margin-top: 40px;" onclick="location.reload()">LOGOUT</button>
+        </div>
+        
+        <div class="visual-right">
+            <img src="https://illustrations.popsy.co/white/order-confirmed.svg" class="biker-illustration" alt="Dashboard">
+        </div>
+    </div>
+</div>
+
+<script>
+    let role = 'student';
+    function setRole(r) { role = r; render(); }
+
+    function render() {
+        const d = document.getElementById('dynamic-fields');
+        const auth = document.getElementById('auth-view');
+        document.getElementById('t-student').className = role === 'student' ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('t-rider').className = role === 'rider' ? 'tab-btn active' : 'tab-btn';
+        
+        if(role === 'rider') {
+            auth.classList.add('rider-mode');
+            d.innerHTML = `
+                <div class="input-box"><label>Full Name (3 Names)</label><input type="text" id="name" placeholder="John Doe Smith"></div>
+                <div class="input-box"><label>Plate Number</label><input type="text" id="plate" placeholder="KMGS XXXX"></div>
+                <div class="input-box"><label>National ID</label><input type="text" id="id_num" placeholder="ID Number"></div>`;
+        } else {
+            auth.classList.remove('rider-mode');
+            d.innerHTML = `<div class="input-box"><label>Your Name</label><input type="text" id="name" placeholder="Name"></div>`;
+        }
+    }
+
+    function getFare() {
+        const target = document.getElementById('dest').value;
+        const out = document.getElementById('fare-output');
+        const rates = { "Diaspora": 84, "Spenza": 89, "Icon": 50 };
+        
+        if(rates[target]) {
+            out.innerText = `ESTIMATED FARE: KSH ${rates[target]}`;
+            out.style.display = 'block';
+        } else { out.style.display = 'none'; }
+    }
+
+    async function handleAuth() {
+        const n = document.getElementById('name').value;
+        if(role === 'rider' && n.trim().split(/\s+/).length < 3) {
+            alert("Rider Security: Please provide 3 names."); return;
+        }
+
+        document.getElementById('auth-view').style.display = 'none';
+        document.getElementById('main-dashboard').style.display = 'flex';
+        document.getElementById('greet-name').innerText = `Hello, ${n.split(' ')[0].toUpperCase()}!`;
+        document.getElementById('sub-msg').innerText = role === 'student' ? "Request a bike to your destination." : "Manage your rider profile and availability.";
+
+        if(role === 'student') {
+            document.getElementById('student-zone').style.display = 'block';
+        } else {
+            document.getElementById('rider-zone').style.display = 'block';
+            document.getElementById('plate-show').innerText = document.getElementById('plate').value;
+        }
+    }
+    render();
+</script>
+</body>
+</html>
