@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kutus Boda | Professional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon: #00ffa3; --gold: #ffdb58; --bg-dark: #020617; --primary: #00cc84; }
+        body, html { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; background: var(--bg-dark); color: white; }
+
+        /* --- LOGIN SECTION --- */
+        #auth-view { display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius: 40px; padding: 35px; width: 100%; max-width: 400px; }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 26px; color: var(--neon); text-align: center; margin-bottom: 25px; }
+        
+        .tabs { display: flex; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 5px; margin-bottom: 25px; }
+        .tab-btn { flex: 1; padding: 14px; border: none; border-radius: 15px; background: transparent; color: #64748b; font-weight: 800; cursor: pointer; }
+        .tab-btn.active { background: var(--neon); color: #020617; }
+        
+        .input-group { margin-bottom: 18px; }
+        label { display: block; font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+        input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 15px; color: white; box-sizing: border-box; }
+        
+        .btn-login { width: 100%; padding: 20px; background: var(--neon); color: #020617; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- DASHBOARD SECTION --- */
+        #dashboard { display: none; background: white; color: #111; min-height: 100vh; flex-direction: column; }
+        .nav { padding: 20px 40px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .hero { display: flex; padding: 40px; gap: 40px; }
+        .grid-9 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .loc-card { border: 2px solid #f0f0f0; padding: 15px; border-radius: 15px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+        .loc-card:hover { border-color: var(--primary); background: #f0fff9; }
+        .fare-box { background: #e8f5e9; color: var(--primary); padding: 20px; border-radius: 20px; margin-top: 25px; text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-view">
+        <div class="glass-card">
+            <div class="logo">KUTUS BODA</div>
+            <div class="tabs">
+                <button id="t-student" class="tab-btn active" onclick="setRole('student')">STUDENT</button>
+                <button id="t-rider" class="tab-btn" onclick="setRole('rider')">RIDER</button>
+            </div>
+            
+            <div id="dynamic-inputs">
+                <div class="input-group"><label>Name</label><input type="text" id="user-name"></div>
+                <div class="input-group"><label>Password</label><input type="password" id="pass"></div>
+            </div>
+            
+            <div class="input-group">
+                <label>Phone Number (M-Pesa)</label>
+                <input type="text" id="phone" value="2547">
+            </div>
+
+            <button class="btn-login" onclick="handleLogin()">LOGIN</button>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        <div class="nav">
+            <div style="font-weight: 800; font-size: 22px;">Uber | Kutus</div>
+            <div id="user-display" style="font-weight: 700; color: var(--primary);"></div>
+        </div>
+        <div class="hero">
+            <div style="flex: 1; max-width: 500px;">
+                <h1>Explore Kutus</h1>
+                <p style="color: #666;">Select one of the 9 locations from your notebook.</p>
+                <div class="grid-9">
+                    <div class="loc-card" onclick="calc(75)">Spenza (< 1km)</div>
+                    <div class="loc-card" onclick="calc(90)">Diaspora (< 2km)</div>
+                    <div class="loc-card" onclick="calc(50)">Icon</div>
+                    <div class="loc-card" onclick="calc(100)">Raha Premium</div>
+                    <div class="loc-card" onclick="calc(100)">Password Hostel</div>
+                    <div class="loc-card" onclick="calc(100)">Executi</div>
+                    <div class="loc-card" onclick="calc(150)">Mjini (> 4km)</div>
+                    <div class="loc-card" onclick="calc(90)">Soko</div>
+                    <div class="loc-card" onclick="calc(75)">School</div>
+                </div>
+                <div id="fare-result" class="fare-box">
+                    <div id="price-amt" style="font-size: 32px; font-weight: 800;"></div>
+                    <select id="goods" onchange="applyGoods()" style="margin-top:10px; padding: 10px; border-radius: 10px;">
+                        <option value="0">No Goods</option>
+                        <option value="70">Goods < 50kg (+70)</option>
+                        <option value="150">Goods > 50kg (+150)</option>
+                    </select>
+                </div>
+                <button onclick="location.reload()" style="margin-top:20px; border:none; background:#ff4444; color:white; padding:15px 30px; border-radius:15px; cursor:pointer;">LOGOUT</button>
+            </div>
+            <div style="flex: 1.2; background: #f6f6f6; border-radius: 40px; display: flex; align-items: center; justify-content: center;">
+                <img src="https://illustrations.popsy.co/white/motorcycle-delivery.svg" style="width: 70%;">
+            </div>
+        </div>
+    </div>
+
+<script>
+    let currentRole = 'student';
+    let basePrice = 0;
+
+    function setRole(r) {
+        currentRole = r;
+        const div = document.getElementById('dynamic-inputs');
+        document.getElementById('t-student').className = r === 'student' ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('t-rider').className = r === 'rider' ? 'tab-btn active' : 'tab-btn';
+
+        if(r === 'rider') {
+            // Added ID Number and 3-name requirement for Riders
+            div.innerHTML = `
+                <div class="input-group"><label>Rider Name (3 Names)</label><input type="text" id="user-name"></div>
+                <div class="input-group"><label>ID Number</label><input type="text" id="id-num"></div>
+                <div class="input-group"><label>Bike Plate</label><input type="text" id="plate"></div>`;
+        } else {
+            // Students only need Name and Password
+            div.innerHTML = `
+                <div class="input-group"><label>Name</label><input type="text" id="user-name"></div>
+                <div class="input-group"><label>Password</label><input type="password" id="pass"></div>`;
+        }
+    }
+
+    function handleLogin() {
+        const name = document.getElementById('user-name').value;
+        if(!name) return alert("Please enter your name");
+        
+        document.getElementById('auth-view').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'flex';
+        document.getElementById('user-display').innerText = name.split(' ')[0].toUpperCase();
+    }
+
+    function calc(p) {
+        basePrice = p;
+        applyGoods();
+        document.getElementById('fare-result').style.display = 'block';
+    }
+
+    function applyGoods() {
+        const extra = parseInt(document.getElementById('goods').value);
+        document.getElementById('price-amt').innerText = (basePrice + extra) + " bob";
+    }
+</script>
+</body>
+</html>
